@@ -3,8 +3,18 @@
 //--------------------------------------------------------------------
 
 #define CLK 13
-#define CS 10
+#define CS 12
 #define DATA 11
+#define BUTTON0 9
+#define BUTTON1 10
+
+int time0 = 300;
+int time1 = 600;
+
+bool currentPlayer = 0;
+
+
+
 
 struct Segment {
   uint8_t numbers[10] = {
@@ -25,12 +35,42 @@ struct Segment {
 };
 Segment segment;
 
-//--------------------------------------------------------------------
+//------------------ Unterprogramme ---------------------------------
 
-void display(int pos, int data) {
+void displaySegment(int pos, int data) {
   data += (9 - pos) * 0x0100;
   senden(data);
 }
+
+void displaySegmentInt(bool leftPos, int num) {
+    const int maxDigits = 4;  // Maximum number of digits
+    int digits[maxDigits];     // Array to store digits
+
+    int count = 0;  // Counter for the number of digits
+
+    while (num > 0 && count < maxDigits) {
+        int digit = num % 10; // Get the last digit
+        digits[count] = digit;
+        count++;
+        num /= 10; // Remove the last digit
+    }
+
+    // Reverse the digits in the array
+    for (int i = 0; i < count / 2; i++) {
+        int temp = digits[i];
+        digits[i] = digits[count - 1 - i];
+        digits[count - 1 - i] = temp;
+    }
+
+    for (int i = 0; i < count; i++) {
+        int displayPos = i + 1;
+        if (!leftPos) {
+          displayPos += 4;
+        }
+        displaySegment(displayPos, segment.numbers[digits[i]]);
+    }
+}
+
 
 void senden(unsigned int data) {
   digitalWrite(CS, LOW);
@@ -49,13 +89,13 @@ void senden(unsigned int data) {
   digitalWrite(CS, HIGH);
 }
 
-void ClearDisplay() {
+void clearDisplay() {
   for (int j = 1; j < 9; j++) {
-    display(j, 0x0000);
+    displaySegment(j, 0x0000);
   }
 }
 
-//--------------------------------------------------------------------
+//-------------------- Setup -----------------------------------------
 
 void setup() {
   pinMode(CLK, OUTPUT);
@@ -69,7 +109,7 @@ void setup() {
   wert = 0x0B07;
   senden(wert); // Scan Limit Register
 
-  wert = 0x0A00;
+  wert = 0x0A0F;
   senden(wert); // Intensity
 
   wert = 0x0C01;
@@ -82,71 +122,28 @@ void setup() {
   // Anzeige clear
   for (int j = 1; j < 9; j++) {
     wert = 0x0000;
-    display(j, wert);
+    displaySegment(j, wert);
   }
-
-
 }
 
-//--------------------------------------------------------------------
-
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-// !get single digits of integer!
-// 
-//int main() {
-//    int iNums = 12476;
-//    std::vector<int> digits;
-//
-//    while (iNums > 0) {
-//        int digit = iNums % 10; // Get the last digit
-//        digits.push_back(digit);
-//        iNums /= 10; // Remove the last digit
-//    }
-//
-//    std::reverse(digits.begin(), digits.end());
-//
-//    for (int digit : digits) {
-//        // Do something with the digit (it's an integer)
-//        std::cout << digit; // For example, print it
-//    }
-//
-//    return 0;
-//}
-
-
-int number = 0;
-int time1 = 600;
-int time2 = 600;
+//------------------- Loop -------------------------------------------
 
 void loop() {
-  display(1, segment.numbers[number]); 
-  delay(100);
-  ClearDisplay();
-  display(2, segment.numbers[number]); 
-  delay(100);
-  ClearDisplay();
-  display(3, segment.numbers[number]); 
-  delay(100);
-  ClearDisplay();
-  display(4, segment.numbers[number]); 
-  delay(100);
-  ClearDisplay();
-  display(5, segment.numbers[number]); 
-  delay(100);
-  ClearDisplay();
-  display(6, segment.numbers[number]); 
-  delay(100);
-  ClearDisplay();
-  display(7, segment.numbers[number]); 
-  delay(100);
-  ClearDisplay();
-  display(8, segment.numbers[number]); 
-  delay(100);
-  ClearDisplay();
-  number++;
+
+  if (currentPlayer == 0 && digitalRead(BUTTON0) || currentPlayer == 1 && digitalRead(BUTTON1)) {
+    currentPlayer = !currentPlayer;
+  }
+  
+  clearDisplay();
+  displaySegmentInt(0, time0);
+  displaySegmentInt(1, time1);
+  if (currentPlayer == 0) {
+    time0--;
+  }
+  if (currentPlayer == 1) {
+    time1--;
+  }
+  delay(1000);
 }
 
 //--------------------------------------------------------------------
