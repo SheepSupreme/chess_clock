@@ -13,9 +13,6 @@ int time1 = 600;
 
 bool currentPlayer = 0;
 
-
-
-
 struct Segment {
   uint8_t numbers[10] = {
     0b01111110, // 0
@@ -36,6 +33,56 @@ struct Segment {
 Segment segment;
 
 //------------------ Unterprogramme ---------------------------------
+
+//Interrupt Service Routine
+ISR(TIMER1_COMPA_vect)
+{
+  if (currentPlayer == 0) {
+    time0--;
+  }
+  if (currentPlayer == 1) {
+    time1--;
+  }
+  
+  clearDisplay();
+  displaySegmentInt(0, time0);
+  displaySegmentInt(1, time1);
+}
+
+void timerSetup() {
+  //Timer1 im CTC-Modus auf 1 Sekunde einstellen
+  noInterrupts(); //alle Interrupts abschalten cli()
+  TCCR1A=0; //Registereintrag löschen
+  TCCR1B=0; //Registereintrag löschen
+  TCCR1B|=(1<<CS12); //256 als Prescale-Wert spezifizieren
+  TCCR1B|=(1<<WGM12); //Setzt das Bit für den CTC-Mode
+  OCR1A=62499; //auf Endwert setzen 62500 Impulse zählen = 1s
+  TIMSK1|=(1<<OCIE1A);//schaltet den Compare-Interrupt ein
+  interrupts(); //alle Interrupts scharf schalten sei()
+}
+
+void displaySetup() {
+  unsigned int wert;
+
+  wert = 0x0B07;
+  senden(wert); // Scan Limit Register
+  delay(10);
+  wert = 0x0A0F;
+  senden(wert); // Intensity
+  delay(10);
+  wert = 0x0C01;
+  senden(wert); // Shutdown Register
+  delay(10);
+  wert = 0x0900;
+  senden(wert); // Decode Mode
+  delay(10);
+
+  // Anzeige clear
+  for (int j = 1; j < 9; j++) {
+    wert = 0x0000;
+    displaySegment(j, wert);
+  }
+}
 
 void displaySegment(int pos, int data) {
   data += (9 - pos) * 0x0100;
@@ -101,29 +148,12 @@ void setup() {
   pinMode(CLK, OUTPUT);
   pinMode(CS, OUTPUT);
   pinMode(DATA, OUTPUT);
-  unsigned int wert;
 
   Serial.begin(9600);
   Serial.println("start");
 
-  wert = 0x0B07;
-  senden(wert); // Scan Limit Register
-
-  wert = 0x0A0F;
-  senden(wert); // Intensity
-
-  wert = 0x0C01;
-  senden(wert); // Shutdown Register
-
-  wert = 0x0900;
-  senden(wert); // Decode Mode
-
-
-  // Anzeige clear
-  for (int j = 1; j < 9; j++) {
-    wert = 0x0000;
-    displaySegment(j, wert);
-  }
+  timerSetup();
+  displaySetup();
 }
 
 //------------------- Loop -------------------------------------------
@@ -134,16 +164,6 @@ void loop() {
     currentPlayer = !currentPlayer;
   }
   
-  clearDisplay();
-  displaySegmentInt(0, time0);
-  displaySegmentInt(1, time1);
-  if (currentPlayer == 0) {
-    time0--;
-  }
-  if (currentPlayer == 1) {
-    time1--;
-  }
-  delay(1000);
 }
 
 //--------------------------------------------------------------------
