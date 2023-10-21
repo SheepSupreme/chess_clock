@@ -4,12 +4,14 @@
 // Programmersteller: David KEDRA
 //--------------------------------------------------------------------
 
+//------------------ Pins --------------------------------------------
 #define CLK 13
 #define CS 12
 #define DATA 11
 #define BUTTON0 9
 #define BUTTON1 10
 
+//------------------ Variablen ---------------------------------------
 int time0 = 300;
 int time1 = 600;
 
@@ -34,7 +36,7 @@ struct Segment {
 };
 Segment segment;
 
-//------------------ Unterprogramme ---------------------------------
+//------------------ Unterprogramme ----------------------------------
 
 // Interrupt Service Routine
 ISR(TIMER1_COMPA_vect)
@@ -52,15 +54,15 @@ ISR(TIMER1_COMPA_vect)
 }
 
 void timerSetup() {
-  //Timer1 im CTC-Modus auf 1 Sekunde einstellen
-  noInterrupts(); //alle Interrupts abschalten cli()
-  TCCR1A=0; //Registereintrag löschen
-  TCCR1B=0; //Registereintrag löschen
-  TCCR1B|=(1<<CS12); //256 als Prescale-Wert spezifizieren
-  TCCR1B|=(1<<WGM12); //Setzt das Bit für den CTC-Mode
-  OCR1A=62499; //auf Endwert setzen 62500 Impulse zählen = 1s
-  TIMSK1|=(1<<OCIE1A);//schaltet den Compare-Interrupt ein
-  interrupts(); //alle Interrupts scharf schalten sei()
+  // Timer1 im CTC-Modus auf 1 Sekunde einstellen
+  noInterrupts(); // alle Interrupts abschalten cli()
+  TCCR1A=0; // Registereintrag löschen
+  TCCR1B=0; // Registereintrag löschen
+  TCCR1B|=(1<<CS12); // 256 als Prescale-Wert spezifizieren
+  TCCR1B|=(1<<WGM12); // Setzt das Bit für den CTC-Mode
+  OCR1A=62499; // Auf Endwert setzen 62500 Impulse zählen = 1 Sekunde
+  TIMSK1|=(1<<OCIE1A); // Schaltet den Compare-Interrupt ein
+  interrupts(); // Alle Interrupts scharf schalten sei()
 }
 
 void displaySetup() {
@@ -95,7 +97,7 @@ leftPos: false, um die Zahl auf den 5. bis 8. 7Seg-Anz darzustellen.
 num: Die Zahl die angezeigt werden soll (maximal 4 Ziffern).
 */
 void displaySegmentInt(bool leftPos, int num) {
-    const int maxDigits = 4; // 4 7-Segment-Anzeigen pro Seite
+    const int maxDigits = 4; // 4 7Seg-Anz pro Seite
     int digits[maxDigits];
 
     int count = 0;
@@ -150,7 +152,6 @@ void clearDisplay() {
 }
 
 //-------------------- Setup -----------------------------------------
-
 void setup() {
   pinMode(CLK, OUTPUT);
   pinMode(CS, OUTPUT);
@@ -164,7 +165,6 @@ void setup() {
 }
 
 //------------------- Loop -------------------------------------------
-
 void loop() {
   if (currentPlayer == 0 && digitalRead(BUTTON0) || currentPlayer == 1 && digitalRead(BUTTON1)) {
     currentPlayer = !currentPlayer;
