@@ -1,0 +1,3 @@
+zeit: min. sec
+Startsequenz: Player 1 press -> Player 2 begin
+Endsequenz: lost player side -> 4x zero blinking

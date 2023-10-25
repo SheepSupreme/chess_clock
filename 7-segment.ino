@@ -14,8 +14,12 @@
 //------------------ Variablen ---------------------------------------
 int playerTime[2];
 
-bool currentPlayer = 0;
-bool timerActive = true;
+bool currentPlayer = 1;
+bool isTimerActive = true;
+bool isGameOver = false;
+bool isGameRunning = false;
+
+bool gameOverBlink_On = true;
 
 struct Segment {
   uint8_t numbers[10] = {
@@ -41,17 +45,42 @@ Segment segment;
 // Interrupt Service Routine
 ISR(TIMER1_COMPA_vect)
 {
-  if (!timerActive) {
+  if (!isTimerActive) {
     return;
   }
 
-  playerTime[currentPlayer]--;
+  if (isGameOver) {
+    if (gameOverBlink_On) {
+      // Nuller nicht zeigen
+      for (int i = 1; i < 5; i++) {
+        int pos = i;
+        if (currentPlayer == 1) {
+          pos += 4; // für rechte seite
+        }
+        displaySegment(pos, 0);
+      }
+    } else {
+      // Nuller Anzeigen auf Position des verlorenen Spielers
+      for (int i = 1; i < 5; i++) {
+        int pos = i;
+        if (currentPlayer == 1) {
+          pos += 4; // für rechte seite
+        }
+        displaySegment(pos, segment.numbers[0]);
+      }
+    }
+    gameOverBlink_On = !gameOverBlink_On;
+    return;
+  }
 
-  displaySegmentInt(currentPlayer, playerTime[currentPlayer]);
+  if (isGameRunning) {
+    playerTime[currentPlayer]--;
+    displaySegmentInt(currentPlayer, playerTime[currentPlayer]);
 
-  // check ob jemand verloren hat
-  if (playerTime[currentPlayer] <= 0) {
-    gameOver(currentPlayer);
+    // check ob jemand verloren hat
+    if (playerTime[currentPlayer] <= 0) {
+      gameOver(currentPlayer);
+    }
   }
 }
 
@@ -78,6 +107,12 @@ void displaySetup() {
   delay(10);
 
   clearDisplay();
+}
+
+// Zeit beider Spieler anzeigen
+void playerTimeSetup() {
+  displaySegmentInt(0, playerTime[0]);
+  displaySegmentInt(1, playerTime[1]);
 }
 
 /*
@@ -122,8 +157,8 @@ void displaySegmentInt(bool leftPos, int num) {
   // Anzeige
   for (int i = 0; i < 4; i++) {
     int displayPos = i + 1;
-    if (!leftPos) {
-      displayPos += maxDigits; // Für Rechte Seite
+    if (leftPos) {
+      displayPos += maxDigits; // Für linke Seite
     }
     if (i < count) {
       displaySegment(displayPos, segment.numbers[digits[i]]); // Ziffer anzeigen
@@ -157,10 +192,16 @@ void clearDisplay() {
   }
 }
 
-void gameOver(int lostPlayer) {
-  timerActive = false;
-  for (int i = 1; i < 9; i++) {
-    displaySegment(i, segment.numbers[lostPlayer]);
+// Zeit eines Spielers ist ausgegangen
+void gameOver(bool lostPlayer) {
+  isGameOver = true;
+  isGameRunning = false;
+  for (int i = 1; i < 5; i++) {
+    int pos = i;
+    if (lostPlayer == 1) {
+      pos += 4; // für rechte seite
+    }
+    displaySegment(pos, segment.numbers[0]);
   }
 }
 
@@ -173,17 +214,22 @@ void setup() {
   Serial.begin(9600);
   Serial.println("start");
 
-  playerTime[0] = 10;
-  playerTime[1] = 10;
-  
+  playerTime[0] = 4;
+  playerTime[1] = 4;
+
   timerSetup();
   displaySetup();
+
+  playerTimeSetup();
+  isGameRunning = true;
 }
 
 //------------------- Loop -------------------------------------------
 void loop() {
-  if (currentPlayer == 0 && digitalRead(BUTTON0) || currentPlayer == 1 && digitalRead(BUTTON1)) {
-    currentPlayer = !currentPlayer;
+  if (isGameRunning && !isGameOver && isTimerActive) {
+    if (currentPlayer == 0 && digitalRead(BUTTON0) || currentPlayer == 1 && digitalRead(BUTTON1)) {
+      currentPlayer = !currentPlayer;
+    }
   }
 }
 
