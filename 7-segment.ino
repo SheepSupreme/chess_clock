@@ -5,11 +5,11 @@
 //--------------------------------------------------------------------
 
 //------------------ Pins --------------------------------------------
-#define BUTTON0 9
-#define BUTTON1 10
-#define CLK 8
-#define CS 7
-#define DATA 6
+#define BUTTON1 9
+#define BUTTON0 8
+#define CLK 7
+#define CS 6
+#define DATA 5
 
 //------------------ Variablen ---------------------------------------
 int playerTime[2];
