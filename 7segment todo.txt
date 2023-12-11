@@ -1,3 +1,20 @@
 zeit: min. sec
-Startsequenz: Player 1 press -> Player 2 begin
-Endsequenz: lost player side -> 4x zero blinking
+DONE: Startsequenz: Player 1 press -> Player 2 begin
+DONE: Endsequenz: lost player side -> 4x zero blinking
+
+
+INFO: 
+Bevor dem Game und im Menü: 
+  isGameRunning = false
+  isGameOver = true
+  isTimerActive = false  
+
+Zeit eingestellt und bereit zum Spielen (Der nächste Spieler der seinen Knopf drückt, beginnt das Spiel, indem die Zeit seines Gegners beginnt abzulaufen):
+  isGameRunning = true
+  isGameOver = false
+  isTimerActive = true
+
+Ein Spieler hat verloren (Schachmatt oder Zeit abgelaufen):
+  isGameRunning = false
+  isGameOver = true
+  isTimerActive = true
