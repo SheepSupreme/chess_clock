@@ -1,4 +1,4 @@
-zeit: min. sec
+Half way done (Punkt fehlt zw. min und sec): zeit: min. sec
 DONE: Startsequenz: Player 1 press -> Player 2 begin
 DONE: Endsequenz: lost player side -> 4x zero blinking
 
