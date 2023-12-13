@@ -24,12 +24,15 @@ void MAX2719::segmentSetup() {
   isGameRunning = true;
 }
 
-void MAX2719::displaySegment(int pos, int data) {
-  data += (9 - pos) * 0x0100;
-  sendMux(data);
+void MAX2719::displayTime(bool leftPos, int seconds) {
+  int minutes = (seconds / 60) % 100; // maximale Minutenanzahl = 99
+  int seconds %= 60;
+
+  int result = minutes * 100 + seconds; // Anzeige = [minutes].[seconds]
+  displayInt(leftPos, result);
 }
 
-void MAX2719::displaySegmentInt(bool leftPos, int num) {
+void MAX2719::displayInt(bool leftPos, int num) {
   const int maxDigits = 4; // 4 MAX2719-Anz pro Seite
   int digits[maxDigits];
 
@@ -52,14 +55,18 @@ void MAX2719::displaySegmentInt(bool leftPos, int num) {
 
   // Anzeige
   for (int i = 0; i < 4; i++) {
-    int displayPos = i + 1;
+    int displayPos = i + 1; // displayPos: 1 steht für die erste MAX2719-Anz, 8 für die letzte
     if (leftPos) {
       displayPos += maxDigits; // Für linke Seite
     }
     if (i < count) {
-      displaySegment(displayPos, segment.numbers[digits[i]]); // Ziffer anzeigen
+      int data = segment.numbers[digits[i]]; // Ziffer
+      data += (9 - displayPos) * 0x0100;
+      sendMux(data);
     } else {
-      displaySegment(displayPos, 0); // clear
+      int data = 0; // clear
+      data += (9 - displayPos) * 0x0100;
+      sendMux(data);
     }
   }
 }

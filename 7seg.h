@@ -43,12 +43,8 @@ class MAX2719 {
     // Setup
     void segmentSetup();
 
-    /*
-      Anzeige von `data` auf der MAX2719-Anz an der Position `pos`.
-
-      pos: 1 steht für die erste MAX2719-Anz, 8 für die letzte.
-    */
-    void displaySegment(int pos, int data);
+    // Zeigt die Zeit in Minuten und Sekunden an mit Anwendung von der Funktion displayInt().
+    void displayTime(bool leftPos, int seconds);
 
     /*
       Anzeige einer Zahl auf einer Seite der MAX2719-Anz.
@@ -58,7 +54,7 @@ class MAX2719 {
 
       num: Die Zahl die angezeigt werden soll (maximal 4 Ziffern).
     */
-    void displaySegmentInt(bool leftPos, int num);
+    void displayInt(bool leftPos, int num);
 
     // Kommunikation mit MUX7219
     void sendMux(unsigned int data);
