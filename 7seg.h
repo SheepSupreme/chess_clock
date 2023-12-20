@@ -7,6 +7,13 @@ class MAX2719 {
     int playerTime[2];
 
     bool currentPlayer = 1;
+    enum GameState {
+      Menu,     // Bevor dem Spiel und im Menü
+      Running,  // Spiel läuft
+      Ready,    // Zeit eingestellt und bereit zum Spielen (Der nächste Spieler der seinen Knopf drückt, beginnt das Spiel, indem die Zeit seines Gegners beginnt abzulaufen)
+      Pause     // Pause (Im Pause-Menü während dem Spiel)
+    }
+    GameState gameState = GameState::Menu;
     bool isTimerActive = true;
     bool isGameOver = false;
     bool isGameRunning = false;
