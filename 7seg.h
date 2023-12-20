@@ -7,16 +7,6 @@ class MAX2719 {
     int playerTime[2];
 
     bool currentPlayer = 1;
-    enum GameState {
-      Menu,     // Bevor dem Spiel und im Menü
-      Running,  // Spiel läuft
-      Ready,    // Zeit eingestellt und bereit zum Spielen (Der nächste Spieler der seinen Knopf drückt, beginnt das Spiel, indem die Zeit seines Gegners beginnt abzulaufen)
-      Pause     // Pause (Im Pause-Menü während dem Spiel)
-    }
-    GameState gameState = GameState::Menu;
-    bool isTimerActive = true;
-    bool isGameOver = false;
-    bool isGameRunning = false;
 
     bool gameOverBlink_On = true;
 
@@ -40,6 +30,14 @@ class MAX2719 {
     Segment segment;
 
   public:
+    enum GameState {
+      Menu,     // Bevor dem Spiel und im Menü
+      Playing,  // Spiel läuft
+      Ready,    // Zeit eingestellt und bereit zum Spielen (Der nächste Spieler der seinen Knopf drückt, beginnt das Spiel, indem die Zeit seines Gegners beginnt abzulaufen)
+      Paused,   // Pausiert (Im Pause-Menü während dem Spiel)
+      GameOver  // Nach Spiel, nicht im Menü
+    };
+
     // Pins
     const int CLK = 7;
     const int CS = 6;
@@ -47,8 +45,18 @@ class MAX2719 {
     const int BUTTON1 = 9;
     const int BUTTON0 = 8;
 
+    GameState gameState = Menu;
+
     // Setup
     void segmentSetup();
+
+    void setPlayerTime(int sec1, int sec2);
+
+    // Kommunikation mit MUX7219
+    void sendMux(unsigned int data);
+
+    // and der Position pos data Anzeigen
+    void displaySegment(int pos, int data);
 
     // Zeigt die Zeit in Minuten und Sekunden an mit Anwendung von der Funktion displayInt().
     void displayTime(bool leftPos, int seconds);
@@ -62,9 +70,6 @@ class MAX2719 {
       num: Die Zahl die angezeigt werden soll (maximal 4 Ziffern).
     */
     void displayInt(bool leftPos, int num);
-
-    // Kommunikation mit MUX7219
-    void sendMux(unsigned int data);
 
     // Anzeige löschen
     void clearDisplay();

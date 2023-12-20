@@ -37,7 +37,7 @@ void setup() {
   pinMode(max2719.CLK, OUTPUT);
   pinMode(max2719.CS, OUTPUT);
   pinMode(max2719.DATA, OUTPUT);
-  
+
   pinMode(max2719.BUTTON0, INPUT);
   pinMode(max2719.BUTTON1, INPUT);
 
@@ -46,6 +46,12 @@ void setup() {
 
   timerSetup();
   max2719.segmentSetup();
+
+
+
+
+  max2719.setPlayerTime(6*60+44, 3*60+12);
+  max2719.gameState = max2719.Ready;
 }
 
 //------------------- Loop -------------------------------------------

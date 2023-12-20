@@ -12,23 +12,26 @@ void MAX2719::segmentSetup() {
   delay(10);
 
   clearDisplay();
+}
 
-  
-  playerTime[0] = 4;
-  playerTime[1] = 4;
-
+void MAX2719::setPlayerTime(int sec1, int sec2) {
+  playerTime[0] = sec1;
+  playerTime[1] = sec2;
   // Zeit beider Spieler anzeigen
-  displaySegmentInt(0, playerTime[0]);
-  displaySegmentInt(1, playerTime[1]);
+  displayTime(0, playerTime[0]);
+  displayTime(1, playerTime[1]);
+}
 
-  isGameRunning = true;
+void MAX2719::displaySegment(int pos, int data) {
+  data += (9 - pos) * 0x0100;
+  sendMux(data);
 }
 
 void MAX2719::displayTime(bool leftPos, int seconds) {
   int minutes = (seconds / 60) % 100; // maximale Minutenanzahl = 99
-  int seconds %= 60;
+  int remainingSeconds = seconds % 60;
 
-  int result = minutes * 100 + seconds; // Anzeige = [minutes].[seconds]
+  int result = minutes * 100 + remainingSeconds; // Anzeige = [minutes].[seconds]
   displayInt(leftPos, result);
 }
 
@@ -61,12 +64,10 @@ void MAX2719::displayInt(bool leftPos, int num) {
     }
     if (i < count) {
       int data = segment.numbers[digits[i]]; // Ziffer
-      data += (9 - displayPos) * 0x0100;
-      sendMux(data);
+      displaySegment(displayPos, data);
     } else {
       int data = 0; // clear
-      data += (9 - displayPos) * 0x0100;
-      sendMux(data);
+      displaySegment(displayPos, data);
     }
   }
 }
@@ -94,8 +95,7 @@ void MAX2719::clearDisplay() {
 }
 
 void MAX2719::gameOver(bool lostPlayer) {
-  isGameOver = true;
-  isGameRunning = false;
+  gameState = GameOver;
   for (int i = 1; i < 5; i++) {
     int pos = i;
     if (lostPlayer == 1) {
@@ -106,11 +106,11 @@ void MAX2719::gameOver(bool lostPlayer) {
 }
 
 void MAX2719::timerLogic() {
-  if (!isTimerActive) {
+  if (gameState == Menu || gameState == Paused || gameState == Ready) {
     return;
   }
 
-  if (isGameOver) {
+  if (gameState == GameOver) {
     if (gameOverBlink_On) {
       // Nuller nicht zeigen
       for (int i = 1; i < 5; i++) {
@@ -134,9 +134,9 @@ void MAX2719::timerLogic() {
     return;
   }
 
-  if (isGameRunning) {
+  if (gameState == Playing) {
     playerTime[currentPlayer]--;
-    displaySegmentInt(currentPlayer, playerTime[currentPlayer]);
+    displayTime(currentPlayer, playerTime[currentPlayer]);
 
     // check ob jemand verloren hat
     if (playerTime[currentPlayer] <= 0) {
@@ -146,7 +146,17 @@ void MAX2719::timerLogic() {
 }
 
 void MAX2719::loop() {
-  if (isGameRunning && !isGameOver && isTimerActive) {
+  if (gameState == Ready) {
+    if (digitalRead(BUTTON0)) {
+      currentPlayer = 1;
+      gameState = Playing;
+    } else if (digitalRead(BUTTON1)) {
+      currentPlayer = 0;
+      gameState = Playing;
+    }
+  }
+
+  if (gameState == Playing) {
     if (currentPlayer == 0 && digitalRead(BUTTON0) || currentPlayer == 1 && digitalRead(BUTTON1)) {
       currentPlayer = !currentPlayer;
     }
