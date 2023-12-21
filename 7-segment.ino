@@ -38,8 +38,8 @@ void setup() {
   pinMode(max2719.CS, OUTPUT);
   pinMode(max2719.DATA, OUTPUT);
 
-  pinMode(max2719.BUTTON0, INPUT);
-  pinMode(max2719.BUTTON1, INPUT);
+  pinMode(max2719.BUTTON0, INPUT_PULLUP);
+  pinMode(max2719.BUTTON1, INPUT_PULLUP);
 
   Serial.begin(9600);
   Serial.println("start");
