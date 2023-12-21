@@ -15,6 +15,7 @@ void MAX2719::segmentSetup() {
 }
 
 void MAX2719::setPlayerTime(int sec1, int sec2) {
+  // Zeit beider Spieler setzen
   playerTime[0] = sec1;
   playerTime[1] = sec2;
   // Zeit beider Spieler anzeigen
@@ -107,7 +108,7 @@ void MAX2719::gameOver(bool lostPlayer) {
 
 void MAX2719::timerLogic() {
   if (gameState == Menu || gameState == Paused || gameState == Ready) {
-    return;
+    return; // Timer nicht notwendig
   }
 
   if (gameState == GameOver) {
@@ -147,17 +148,21 @@ void MAX2719::timerLogic() {
 
 void MAX2719::loop() {
   if (gameState == Ready) {
+    // Bereit zu Spielen; Zeit läuft noch nicht
     if (!digitalRead(BUTTON0)) {
-      currentPlayer = 1;
+      // Spieler 0 hat gedrückt
+      currentPlayer = 1; // Spieler 1 beginnt
       gameState = Playing;
     } else if (!digitalRead(BUTTON1)) {
-      currentPlayer = 0;
+      // Spieler 1 hat gedrückt
+      currentPlayer = 0; // Spieler 0 beginnt
       gameState = Playing;
     }
   }
 
   if (gameState == Playing) {
     if (currentPlayer == 0 && !digitalRead(BUTTON0) || currentPlayer == 1 && !digitalRead(BUTTON1)) {
+      // Spieler beendet seinen Zug
       currentPlayer = !currentPlayer;
     }
   }
