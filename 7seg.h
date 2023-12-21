@@ -50,6 +50,7 @@ class MAX2719 {
     // Setup
     void segmentSetup();
 
+    // Die Zeit beider Spieler seperat einstellen
     void setPlayerTime(int sec1, int sec2);
 
     // Kommunikation mit MUX7219
@@ -80,5 +81,7 @@ class MAX2719 {
     // Zeit eines Spielers ist ausgegangen
     void gameOver(bool lostPlayer);
 
+    // Soll im Arduino loop ausgeführt werden
+    // Taster bezogener Code
     void loop();
 };
