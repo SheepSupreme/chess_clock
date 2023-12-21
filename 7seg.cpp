@@ -147,17 +147,17 @@ void MAX2719::timerLogic() {
 
 void MAX2719::loop() {
   if (gameState == Ready) {
-    if (digitalRead(BUTTON0)) {
+    if (!digitalRead(BUTTON0)) {
       currentPlayer = 1;
       gameState = Playing;
-    } else if (digitalRead(BUTTON1)) {
+    } else if (!digitalRead(BUTTON1)) {
       currentPlayer = 0;
       gameState = Playing;
     }
   }
 
   if (gameState == Playing) {
-    if (currentPlayer == 0 && digitalRead(BUTTON0) || currentPlayer == 1 && digitalRead(BUTTON1)) {
+    if (currentPlayer == 0 && !digitalRead(BUTTON0) || currentPlayer == 1 && !digitalRead(BUTTON1)) {
       currentPlayer = !currentPlayer;
     }
   }
