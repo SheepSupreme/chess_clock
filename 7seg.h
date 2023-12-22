@@ -6,7 +6,8 @@ class MAX2719 {
     //------------------ Variablen -----------------------------------
     int playerTime[2];
 
-    bool currentPlayer = 1;
+    bool currentPlayer = 0;
+    bool whitePlayer = 0;
 
     bool gameOverBlink_On = true;
 
@@ -46,6 +47,15 @@ class MAX2719 {
     const int BUTTON0 = 8;
 
     GameState gameState = Menu;
+
+    // Getter für currentPlayer
+    bool getCurrentPlayer() {
+      return currentPlayer;
+    }
+
+    bool getWhitePlayer() {
+      return whitePlayer;
+    }
 
     // Setup
     void segmentSetup();

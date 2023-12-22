@@ -152,10 +152,12 @@ void MAX2719::loop() {
     if (!digitalRead(BUTTON0)) {
       // Spieler 0 hat gedrückt
       currentPlayer = 1; // Spieler 1 beginnt
+      whitePlayer = 1;
       gameState = Playing;
     } else if (!digitalRead(BUTTON1)) {
       // Spieler 1 hat gedrückt
       currentPlayer = 0; // Spieler 0 beginnt
+      whitePlayer = 0;
       gameState = Playing;
     }
   }
