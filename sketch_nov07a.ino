@@ -167,9 +167,9 @@ void loop() {
     display.drawBitmap(27, 0, epd_bitmap_allArray[1], 74, 43, 1);
     display.invertDisplay(max2719.getCurrentPlayer() == max2719.getWhitePlayer());
     if(max2719.getCurrentPlayer() == max2719.getWhitePlayer()){
-      display.drawBitmap(27, 44, epd_bitmap_allArray[6], 74, 21, 1);
+      display.drawBitmap(25, 44, epd_bitmap_allArray[7], 74, 50, 1);
     }
-    else {display.drawBitmap(27, 44, epd_bitmap_allArray[5], 74, 21, 1);}
+    else {display.drawBitmap(25, 44, epd_bitmap_allArray[6], 74, 50, 1);}
     display.display();
     if (!n_click()) {
       max2719.gameState = max2719.Paused;

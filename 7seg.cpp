@@ -65,6 +65,11 @@ void MAX2719::displayInt(bool leftPos, int num) {
     }
     if (i < count) {
       int data = segment.numbers[digits[i]]; // Ziffer
+      if (i == 0 && count == 3) {
+        data += 0b10000000;
+      } else if (i == 1 && count == 4) {
+        data += 0b10000000;
+      }
       displaySegment(displayPos, data);
     } else {
       int data = 0; // clear
