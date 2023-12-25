@@ -1,30 +1,27 @@
 
-// SSD1306
+// Include eigener header Dateien
 #include "7seg.h"
 #include "oled.h"
+
+// Include weiterer Bibliotheken für die Verwendung des OLED-Displays
 #include <SPI.h>
-#include <Wire.h>
+#include <Wire.h> // Erkennung des Arduinos und automatische dekleration der SDA und SCL Pins
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-
-// Wire.h Pins
-// A4 SDA OLED
-// A5 SCL OLED
+MAX2719 max2719;
 
 // Pins
 const int CLK = 10;
 const int DATA = 11;
 const int SW = 12;
 
-#define SCREEN_WIDTH 128  // OLED display width, in pixels
-#define SCREEN_HEIGHT 64  // OLED display height, in pixels
-
-#define OLED_RESET -1        // Reset pin # (or -1 if sharing Arduino reset pin)
-#define SCREEN_ADDRESS 0x3C  ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+// Einstellungen für OLED-Display
+#define SCREEN_WIDTH 128  // OLED display Weite, in Pixel
+#define SCREEN_HEIGHT 64  // OLED display Höhe, in Pixel
+#define OLED_RESET -1 
+#define SCREEN_ADDRESS 0x3C 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-
-MAX2719 max2719;
 
 ISR(TIMER1_COMPA_vect) {
   max2719.timerLogic();
@@ -44,7 +41,7 @@ void timerSetup() {
 }
 
 
-// Array of all bitmaps for convenience. (Total bytes used to store images in PROGMEM = 2160)
+// Array aller Bitmaps für Übersicht
 const int epd_bitmap_allArray_LEN = 5;
 const unsigned char* epd_bitmap_allArray[8] = {
   epd_bitmap_Background,
@@ -57,7 +54,9 @@ const unsigned char* epd_bitmap_allArray[8] = {
   white
 };
 
-bool n_click() {
+// Unterprogramm, dass einen Knopfdruck des Rotary Encoders erkennt
+// Auf dem OLED wird eine Farbenwechsel als visueler Indikator durchgeführt
+bool click() {
   if (digitalRead(SW) == 0) {
     delay(10);
     display.invertDisplay(true);
@@ -65,14 +64,15 @@ bool n_click() {
       delay(10);
     }
     display.invertDisplay(false);
-    return false;
+    return true;
   }
-  return true;
+  return false;
 }
 
+// Unterprogramm für Modi Auswahl im Menü
 int mode_select() {
   static int8_t c, val;
-  while (n_click()) {
+  while (!click()) {
     if (val = read_rotary()) {
       c += val;
       if (c == -1) { c = 2; }
@@ -122,21 +122,23 @@ void setup() {
 
   display.display();
 
+  // Modi Auswahl
   while (c < 0) { c = mode_select(); }
 
+  // Zeiteinstellung abhängig von dem Ausgewählten Modus
   switch (c) {
-    case 0:  //10 minutes
+    case 0:  //10 Minuten
       max2719.setPlayerTime(10 * 60, 10 * 60);
       max2719.gameState = max2719.Ready;
       break;
-    case 1:
-      while (n_click()) {
+    case 1: // Manuelle Zeiteinstellung
+      while (!click()) {
         if (val = read_rotary()) {
           time1 += val;
         }
         max2719.setPlayerTime(time1 * 10, 0);
       }
-      while (n_click()) {
+      while (!click()) {
         if (val = read_rotary()) {
           time2 += val;
         }
@@ -145,7 +147,7 @@ void setup() {
 
       max2719.gameState = max2719.Ready;
       break;
-    case 2:
+    case 2: // 5 Minuten
       max2719.setPlayerTime(5 * 60, 5 * 60);
       max2719.gameState = max2719.Ready;
       break;
@@ -161,33 +163,33 @@ static uint16_t store = 0;
 
 
 void loop() {
-  max2719.loop();
-  display.clearDisplay();
+  max2719.loop(); // Gametimer
+  display.clearDisplay(); // Oled Display clear
   if (max2719.gameState == max2719.Playing) {
-    display.drawBitmap(27, 0, epd_bitmap_allArray[1], 74, 43, 1);
-    display.invertDisplay(max2719.getCurrentPlayer() == max2719.getWhitePlayer());
+    display.drawBitmap(27, 0, epd_bitmap_allArray[1], 74, 43, 1); // display von Standard Bitmap
+    display.invertDisplay(max2719.getCurrentPlayer() == max2719.getWhitePlayer()); // Oled weiß(wenn Weiß am Zug)& schwarz(wenn Schwarz am Zug)
     if(max2719.getCurrentPlayer() == max2719.getWhitePlayer()){
-      display.drawBitmap(25, 44, epd_bitmap_allArray[7], 74, 50, 1);
+      display.drawBitmap(25, 44, epd_bitmap_allArray[7], 74, 50, 1); // Bitmap für Spieler der am Zug ist
     }
-    else {display.drawBitmap(25, 44, epd_bitmap_allArray[6], 74, 50, 1);}
+    else {display.drawBitmap(25, 44, epd_bitmap_allArray[6], 74, 50, 1);} // Bitmap für Spieler der am Zug ist
     display.display();
-    if (!n_click()) {
-      max2719.gameState = max2719.Paused;
+    if (click()) {
+      max2719.gameState = max2719.Paused; // Bei Knopfdruck des Rotary Encoders wird das Spiel pausiert
     }
   } 
   else if (max2719.gameState == max2719.Paused) {
     display.clearDisplay();
-    display.drawBitmap(0, 0, epd_bitmap_allArray[5], 128, 64, 1);
+    display.drawBitmap(0, 0, epd_bitmap_allArray[5], 128, 64, 1); // Oled zeigt die Pause an
     display.display();
-    if (!n_click()) {
-      max2719.gameState = max2719.Playing;
+    if (click()) {
+      max2719.gameState = max2719.Playing; // Bei Knopfdruck des Rotary Encoders wird das Spiel fortgesetzt
     }
   }
 }
 
-// A vald CW or  CCW move returns 1, invalid returns 0.
+// Unterprogramm für Software debounce des Rotary Encoders
 int8_t read_rotary() {
-  static int8_t rot_enc_table[] = { 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0 };
+  static int8_t rot_enc_table[] = { 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0 }; // Table für erlaubte und unerlaubte Zustände
 
   prevNextCode <<= 2;
   if (digitalRead(DATA)) prevNextCode |= 0x02;
