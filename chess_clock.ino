@@ -1,3 +1,5 @@
+// Made by David Kedra & Lukas Gregor
+// chess_clock.ino
 
 // Include eigener header Dateien
 #include "7seg.h"
@@ -23,10 +25,13 @@ const int SW = 12;
 #define SCREEN_ADDRESS 0x3C 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+static uint8_t prevNextCode = 0;
+static uint16_t store = 0;
+
+// Timer: ein Mal pro Sekunde aufgerufen
 ISR(TIMER1_COMPA_vect) {
   max2719.timerLogic();
 }
-
 
 void timerSetup() {
   // Timer1 im CTC-Modus auf 1 Sekunde einstellen
@@ -39,7 +44,6 @@ void timerSetup() {
   TIMSK1 |= (1 << OCIE1A);  // Schaltet den Compare-Interrupt ein
   interrupts();             // Alle Interrupts scharf schalten sei()
 }
-
 
 // Array aller Bitmaps für Übersicht
 const int epd_bitmap_allArray_LEN = 5;
@@ -88,8 +92,26 @@ int mode_select() {
   return c;
 }
 
+// Unterprogramm für Software debounce des Rotary Encoders
+int8_t read_rotary() {
+  static int8_t rot_enc_table[] = { 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0 }; // Table für erlaubte und unerlaubte Zustände
 
+  prevNextCode <<= 2;
+  if (digitalRead(DATA)) prevNextCode |= 0x02;
+  if (digitalRead(CLK)) prevNextCode |= 0x01;
+  prevNextCode &= 0x0f;
 
+  // If valid then store as 16 bit data.
+  if (rot_enc_table[prevNextCode]) {
+    store <<= 4;
+    store |= prevNextCode;
+    //if (store==0xd42b) return 1;
+    //if (store==0xe817) return -1;
+    if ((store & 0xff) == 0x2b) return -1;
+    if ((store & 0xff) == 0x17) return 1;
+  }
+  return 0;
+}
 
 void setup() {
   static int8_t c, val, time1, time2;
@@ -155,13 +177,6 @@ void setup() {
   display.clearDisplay();
 }
 
-
-
-static uint8_t prevNextCode = 0;
-static uint16_t store = 0;
-
-
-
 void loop() {
   max2719.loop(); // Gametimer
   display.clearDisplay(); // Oled Display clear
@@ -185,25 +200,4 @@ void loop() {
       max2719.gameState = max2719.Playing; // Bei Knopfdruck des Rotary Encoders wird das Spiel fortgesetzt
     }
   }
-}
-
-// Unterprogramm für Software debounce des Rotary Encoders
-int8_t read_rotary() {
-  static int8_t rot_enc_table[] = { 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0 }; // Table für erlaubte und unerlaubte Zustände
-
-  prevNextCode <<= 2;
-  if (digitalRead(DATA)) prevNextCode |= 0x02;
-  if (digitalRead(CLK)) prevNextCode |= 0x01;
-  prevNextCode &= 0x0f;
-
-  // If valid then store as 16 bit data.
-  if (rot_enc_table[prevNextCode]) {
-    store <<= 4;
-    store |= prevNextCode;
-    //if (store==0xd42b) return 1;
-    //if (store==0xe817) return -1;
-    if ((store & 0xff) == 0x2b) return -1;
-    if ((store & 0xff) == 0x17) return 1;
-  }
-  return 0;
 }
