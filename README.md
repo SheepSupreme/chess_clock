@@ -1,5 +1,6 @@
 # Schachuhr
 Das vorliegende Projekt befasst sich mit der Entwicklung einer Schachuhr, die es Spielern ermöglicht, die Spielzeit jedes Spielers individuell einzustellen. Die Bedienung erfolgt über ein OLED-Display und einen Rotary Encoder. Die Spieler können die Zeit für ihr Spiel im Menü einstellen und deren aktuelle Spielzeit auf einem 7-Segment-Display verfolgen. Das System ermöglicht das Starten, Beenden und Pausieren von Spielen. Die Schachuhr funktioniert mit einem Arduino Mega.
+
 ## Bedienungsanleitung
 ### Menüauswahl:
 Das OLED-Display zeigt das Hauptmenü an, in dem Sie die Einstellungen, wie die Zeiteinstellungen vornehmen können.
@@ -32,13 +33,12 @@ Um ein neues Spiel zu starten, betätigen Sie den Arduino-Reset-Taster.
 | Widerstand      | 100k                              | 2     | Pull-Down für Taster    |
 
 ## I/O-Belegung
-
 Alle Pins sind bezogen auf ein Arduino Mega.
-#### 7-Segment Anzeige:
+### 7-Segment Anzeige:
 5 (Data), 6 (CS), 7 (CLK)
-#### Taster:
+### Taster:
 8 (Taster 0), 9 (Taster 1)
-#### Rotary Encoder: 
+### Rotary Encoder: 
 10 (CLK), 11 (DATA), 12 (SW)
-#### OLED-Display:
+### OLED-Display:
 20 (SDA), 21 (SCL)
