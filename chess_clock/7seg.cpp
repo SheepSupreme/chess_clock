@@ -85,8 +85,7 @@ void MAX2719::sendMux(unsigned int data) {
   digitalWrite(CS, LOW);
   bool zw;
   unsigned int maske = 0x8000;
-
-  maske = 0x8000;
+  
   for (int i = 0; i < 16; i++) {
     digitalWrite(CLK, LOW);
     zw = (data & maske) == maske;
