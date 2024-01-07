@@ -1,4 +1,4 @@
-// Made by David KEDRA
+// Made by David Kedra
 // 7seg.cpp
 
 #include "7seg.h"
