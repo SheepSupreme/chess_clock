@@ -1,3 +1,6 @@
+// Made by David KEDRA
+// 7seg.cpp
+
 #include "7seg.h"
 
 void MAX2719::segmentSetup() {
