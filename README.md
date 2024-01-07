@@ -34,11 +34,11 @@ Um ein neues Spiel zu starten, betätigen Sie den Arduino-Reset-Taster.
 ## I/O-Belegung
 
 Alle Pins sind bezogen auf ein Arduino Mega.
-7-Segment Anzeige:
+#### 7-Segment Anzeige:
 5 (Data), 6 (CS), 7 (CLK)
-Taster:
+#### Taster:
 8 (Taster 0), 9 (Taster 1)
-Rotary Encoder: 
+#### Rotary Encoder: 
 10 (CLK), 11 (DATA), 12 (SW)
-OLED-Display:
+#### OLED-Display:
 20 (SDA), 21 (SCL)
