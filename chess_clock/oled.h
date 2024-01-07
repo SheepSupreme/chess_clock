@@ -1,3 +1,6 @@
+// Made by Lukas Gregor
+// oled.h
+
 #define oled_H
 #ifdef oled_H
 
