@@ -1,3 +1,6 @@
+// Made by David Kedra
+// 7seg.h
+
 #include <stdint.h>
 #include <Arduino.h>
 
