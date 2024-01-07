@@ -66,7 +66,7 @@ class MAX2719 {
     // Kommunikation mit MUX7219
     void sendMux(unsigned int data);
 
-    // and der Position pos data Anzeigen
+    // an der Position pos data Anzeigen
     void displaySegment(int pos, int data);
 
     // Zeigt die Zeit in Minuten und Sekunden an mit Anwendung von der Funktion displayInt().
