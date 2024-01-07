@@ -27,9 +27,6 @@ class MAX2719 {
         0b01111111, // 8
         0b01111011, // 9
       };
-      uint8_t letters[10] = {
-
-      };
     };
     Segment segment;
 
